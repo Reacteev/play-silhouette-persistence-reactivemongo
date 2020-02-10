@@ -9,22 +9,23 @@ import scalariform.formatter.preferences._
 
 name := "play-silhouette-persistence-reactivemongo"
 
-version := "5.0.6"
+version := "6.1.1"
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.13.1"
 
-crossScalaVersions := Seq("2.12.6", "2.11.12")
+crossScalaVersions := Seq("2.12.10")
 
 resolvers += Resolver.jcenterRepo
 
 resolvers += "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-silhouette" % "5.0.6",
-  "com.mohiva" %% "play-silhouette-persistence" % "5.0.6",
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.16.0-play26",
-  "net.codingwell" %% "scala-guice" % "4.2.1" % "test",
-  "de.flapdoodle.embed" % "de.flapdoodle.embed.mongo" % "2.1.1" % "test",
+  "com.mohiva" %% "play-silhouette" % "6.1.1",
+  "com.mohiva" %% "play-silhouette-persistence" % "6.1.1",
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.20.3-play28",
+  "org.reactivemongo" %% "reactivemongo-play-json-compat" % "0.20.3-play28",
+  "net.codingwell" %% "scala-guice" % "4.2.6" % "test",
+  "de.flapdoodle.embed" % "de.flapdoodle.embed.mongo" % "2.2.0" % "test",
   specs2 % Test
 )
 
@@ -40,10 +41,7 @@ scalacOptions ++= Seq(
   "-unchecked", // Enable additional warnings where generated code depends on assumptions.
   "-Xfatal-warnings", // Fail the compilation if there are any warnings.
   "-Xlint", // Enable recommended additional warnings.
-  "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver.
   "-Ywarn-dead-code", // Warn when dead code is identified.
-  "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures.
-  "-Ywarn-nullary-override", // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
   "-Ywarn-numeric-widen" // Warn when numerics are widened.
 )
 
@@ -105,5 +103,5 @@ defaultScalariformSettings
 
 ScalariformKeys.preferences := ScalariformKeys.preferences.value
   .setPreference(FormatXml, false)
-  .setPreference(DoubleIndentClassDeclaration, false)
+  .setPreference(DoubleIndentConstructorArguments, true)
   .setPreference(DanglingCloseParenthesis, Preserve)

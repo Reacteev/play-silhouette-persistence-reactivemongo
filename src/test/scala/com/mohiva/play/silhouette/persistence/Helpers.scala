@@ -165,14 +165,14 @@ trait MongoScope extends BeforeAfterWithinAround {
    * Inserts the test fixtures.
    */
   def before: Unit = {
-    import reactivemongo.play.json._
+    import reactivemongo.play.json.compat._
     Await.result(reactiveMongoAPI.database.flatMap { db =>
       Future.sequence(fixtures.flatMap {
         case (c, files) =>
           val collection = db.collection[JSONCollection](c)
           files.map { file =>
             val json = Helper.loadJson(file)
-            collection.insert(Json.toJson(json).as[JsObject])
+            collection.insert(ordered = false).one(Json.toJson(json).as[JsObject])
           }
       })
     }, Duration(60, SECONDS))

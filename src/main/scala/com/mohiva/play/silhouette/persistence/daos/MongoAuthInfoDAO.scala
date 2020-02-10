@@ -20,7 +20,7 @@ import com.mohiva.play.silhouette.persistence.exceptions.MongoException
 import play.api.Configuration
 import play.api.libs.json.{ Format, JsObject, Json }
 import play.modules.reactivemongo.ReactiveMongoApi
-import reactivemongo.play.json._
+import reactivemongo.play.json.compat._
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.play.json.collection.JSONCollection
 
@@ -35,17 +35,18 @@ import scala.reflect.ClassTag
  * @tparam A The type of the auth info to store.
  */
 class MongoAuthInfoDAO[A <: AuthInfo: ClassTag: Format](
-  reactiveMongoApi: ReactiveMongoApi,
-  config: Configuration
+    reactiveMongoApi: ReactiveMongoApi,
+    config: Configuration
 )(
-  implicit
-  ex: ExecutionContext
+    implicit
+    ex: ExecutionContext
 ) extends DelegableAuthInfoDAO[A] {
 
   /**
    * The name of the auth info to store.
    */
   private val authInfoName = implicitly[ClassTag[A]].runtimeClass.getSimpleName
+  override val classTag: ClassTag[A] = implicitly[ClassTag[A]]
 
   /**
    * The name of the collection to store the auth info.
@@ -82,7 +83,7 @@ class MongoAuthInfoDAO[A <: AuthInfo: ClassTag: Format](
    * @return The added auth info.
    */
   def add(loginInfo: LoginInfo, authInfo: A) = {
-    onSuccess(jsonCollection.flatMap(_.insert(merge(loginInfo, authInfo))), authInfo)
+    onSuccess(jsonCollection.flatMap(_.insert(ordered = false).one(merge(loginInfo, authInfo))), authInfo)
   }
 
   /**
@@ -93,7 +94,7 @@ class MongoAuthInfoDAO[A <: AuthInfo: ClassTag: Format](
    * @return The updated auth info.
    */
   def update(loginInfo: LoginInfo, authInfo: A) = {
-    updated(jsonCollection.flatMap(_.update(Json.obj("_id" -> loginInfo), merge(loginInfo, authInfo)))).map {
+    updated(jsonCollection.flatMap(_.update(ordered = false).one(Json.obj("_id" -> loginInfo), merge(loginInfo, authInfo)))).map {
       case num if num > 0 => authInfo
       case _ => throw new MongoException(s"Could not update $authInfoName for login info: " + loginInfo)
     }
@@ -110,7 +111,7 @@ class MongoAuthInfoDAO[A <: AuthInfo: ClassTag: Format](
    * @return The saved auth info.
    */
   def save(loginInfo: LoginInfo, authInfo: A) = {
-    onSuccess(jsonCollection.flatMap(_.update(Json.obj("_id" -> loginInfo), merge(loginInfo, authInfo), upsert = true)), authInfo)
+    onSuccess(jsonCollection.flatMap(_.update(ordered = false).one(Json.obj("_id" -> loginInfo), merge(loginInfo, authInfo), upsert = true)), authInfo)
   }
 
   /**
